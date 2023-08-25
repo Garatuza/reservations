@@ -1,0 +1,64 @@
+services:
+  configserver:
+    image: garatuza/configserver:latest
+    mem_limit: 800m
+    ports:
+      - "8085:8085"
+    networks:
+      - garatuza-network
+  hotels:
+    image: garatuza/hotels:latest
+    mem_limit: 800m
+    ports:
+      - "8080:8080"
+    networks:
+      - garatuza-network
+    depends_on:
+      - configserver
+    deploy: 
+        restart_policy:
+            condition: on-failure
+            delay: 5s
+            max_attempts: 3
+            window: 120s
+    environment:
+        SPRING_PROFILES_ACTIVE: prod
+        SPRING_CONGIF_IMPORT: configserver:http://configserver:8085/
+  rooms:
+    image: garatuza/rooms:latest
+    mem_limit: 800m
+    ports:
+      - "8081:8081"
+    networks:
+      - garatuza-network
+    depends_on:
+      - configserver
+    deploy: 
+        restart_policy:
+            condition: on-failure
+            delay: 5s
+            max_attempts: 3
+            window: 120s
+    environment:
+        SPRING_PROFILES_ACTIVE: prod
+        SPRING_CONGIF_IMPORT: configserver:http://configserver:8085/    
+  reservations:
+    image: garatuza/reservations:latest
+    mem_limit: 800m
+    ports:
+      - "8082:8082"
+    networks:
+      - garatuza-network
+    depends_on:
+      - configserver
+    deploy: 
+        restart_policy:
+            condition: on-failure
+            delay: 5s
+            max_attempts: 3
+            window: 120s
+    environment:
+        SPRING_PROFILES_ACTIVE: prod
+        SPRING_CONGIF_IMPORT: configserver:http://configserver:8085/    
+networks:
+  garatuza-network:
